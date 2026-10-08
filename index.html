@@ -427,18 +427,11 @@
   .timer-bar-track{ height:8px; border-radius:8px; background:#f1ecf9; overflow:hidden; margin: 6px 0 4px; }
   .timer-bar-fill{ height:100%; background: linear-gradient(90deg, var(--peach), var(--peach-deep)); width:0%; transition: width .3s linear; border-radius:8px;}
 
-  /* ---------- Wisdom ---------- */
-  .wisdom-card{ min-height:170px; display:flex; flex-direction:column; justify-content:center; text-align:center; padding: 34px 24px; background: linear-gradient(150deg, var(--pink), #fbe0e8 65%); border-color: transparent;}
-  .wisdom-kind{ font-size:11px; font-weight:800; letter-spacing:1.5px; text-transform:uppercase; color:#8a3457; margin-bottom:16px;}
-  .wisdom-text{ font-size: 18px; font-weight:600; line-height:1.6; color: #4a2438; }
-  .wisdom-nav{ display:flex; justify-content:center; gap:14px; margin-top:22px; }
-  .wisdom-dots{ text-align:center; margin-top:16px; font-size:11px; font-weight:600; color: var(--ink-dim); letter-spacing:0.3px; }
 
   footer{ text-align:center; color: var(--ink-dim); font-size:11.5px; padding: 34px 20px 10px; letter-spacing:0.2px; }
 
   #tab-stopwatch h2 .chip{ --tab-accent: var(--lavender); }
   #tab-timer h2 .chip{ --tab-accent: var(--peach); }
-  #tab-wisdom h2 .chip{ --tab-accent: var(--pink); }
   #tab-streak h2 .chip{ --tab-accent: var(--mint); }
   #tab-sleep h2 .chip{ --tab-accent: var(--sky); }
   #tab-habits h2 .chip{ --tab-accent: var(--lavender); }
@@ -1048,7 +1041,6 @@
       <div class="nav-group-body" data-group-body="study">
         <button class="pill" data-tab="stopwatch">Stopwatch</button>
         <button class="pill" data-tab="timer">Timer</button>
-        <button class="pill" data-tab="wisdom">Motivation</button>
         <button class="pill" data-tab="streak">Study</button>
         <button class="pill" data-tab="logbook">Log Book</button>
         <button class="pill" data-tab="scorecard">Scorecard</button>
@@ -1237,21 +1229,6 @@
     </div>
   </section>
 
-  <!-- ================= WISDOM ================= -->
-  <section id="tab-wisdom">
-    <h2 class="section-title"><span class="chip">Pep talk</span> No Cap, Just Facts</h2>
-    <div class="panel wisdom-card">
-      <div class="wisdom-kind" id="wisdomKind">Real Talk</div>
-      <div class="wisdom-text" id="wisdomText">Loading…</div>
-    </div>
-    <div class="wisdom-nav">
-      <button class="btn ghost" id="wisdomPrev">← Back</button>
-      <button class="btn ghost" id="wisdomAuto">⏸ Auto</button>
-      <button class="btn ghost" id="wisdomNext">Next →</button>
-      <button class="btn primary" id="wisdomNew">✦ New one</button>
-    </div>
-    <div class="wisdom-dots" id="wisdomDots"></div>
-  </section>
 
   <!-- ================= STREAK ================= -->
   <section id="tab-streak">
@@ -5049,190 +5026,6 @@ document.getElementById('coverEnterBtn').addEventListener('click', ()=>{
 });
 
 /* =====================================================================
-   MOTIVATION — combinatorial generator, one new line auto-added per day,
-   more available on demand, none ever repeat (tracked permanently in
-   state.wisdomLog so uniqueness holds across the entire life of the app).
-===================================================================== */
-const WISDOM_BASE = [
-  {kind:'Real Talk', text:'You dont need a 6am wake-up and a color-coded planner to clear this exam. You need to open the book today.'},
-  {kind:'POV', text:'POV: you have read the same line four times because your brain went to what to eat later. Put the phone in another room and read it a fifth time.'},
-  {kind:'Unpopular Opinion', text:'Studying 12 hours and remembering none of it is not discipline, its just suffering with extra steps. Two focused hours beat six distracted ones.'},
-  {kind:'Reminder', text:'That relative who keeps asking "kab clear hoga beta" is not in the exam hall with you. Let their timeline be their timeline.'},
-  {kind:'Real Talk', text:'Everyone in your group chat posting "revision day 47" is not necessarily ahead of you. Half of them are also panicking and posting for the plot.'},
-  {kind:'Plot Twist', text:'The version of you who actually clears this exam is not the one who feels most motivated. Its the one who shows up on the boring, unmotivated Tuesday.'},
-  {kind:'Real Talk', text:'Comparing your attempt number to a toppers reel is like comparing your rough draft to someone elses final cut.'},
-  {kind:'Reminder', text:'It is okay to close the book at 11pm and actually sleep. A tired brain does not retain provisions of the Companies Act any better than a rested one.'},
-  {kind:'Petty Motivation', text:'Imagine finally clearing this and muting every single "beta engineering karlo" comment forever.'},
-  {kind:'Real Talk', text:'Doomscrolling for "just 5 minutes" between practice questions is never 5 minutes. Do the questions first, scroll as the reward.'},
-  {kind:'Unpopular Opinion', text:'You are allowed to find this syllabus genuinely boring and still clear it. Passion is not a prerequisite. Consistency is.'},
-  {kind:'Reminder', text:'The anxious feeling before mocks is not proof you will fail. Its just adrenaline with bad PR.'},
-  {kind:'Real Talk', text:'You do not have to feel ready. Nobody walks into that exam hall feeling fully ready, they walk in prepared enough.'},
-  {kind:'Plot Twist', text:'One bad mock test does not undo three months of consistent work. It is data, not a verdict.'},
-  {kind:'Petty Motivation', text:'Future you, sitting for the last time in an exam hall, is counting on present you to not waste today doomscrolling.'},
-  {kind:'Real Talk', text:'Chai break, then back to the desk. Not chai break, reel break, another reel, one more, oh its been 40 minutes.'},
-  {kind:'POV', text:'POV: you have refreshed the ICAI website four times today for no reason. Nothing new is coming. Open the RTP instead.'},
-  {kind:'Reminder', text:'Rewriting the same notes in three colors for the fourth time is not revision, its arts and crafts.'},
-  {kind:'Real Talk', text:'A mock score is feedback on todays version of you, not a permanent label.'},
-  {kind:'Unpopular Opinion', text:'"I work better under pressure" has quietly cost you three weeks this attempt.'},
-  {kind:'Petty Motivation', text:'Every forwarded "good morning, focus on your goals" message in the family group chat could be replaced by you actually focusing on your goals.'},
-  {kind:'Real Talk', text:'Your notes app has forty half-written revision plans and zero completed revision sessions. Pick the messiest one and just start it.'},
-  {kind:'Reminder', text:'Hydrate. Seriously. A dehydrated brain forgets provisions faster than an under-revised one does.'},
-  {kind:'Plot Twist', text:'The senior who cleared in their first attempt also had a day where they stared at the ceiling instead of studying.'},
-  {kind:'Real Talk', text:'Group study helps until it becomes a two hour discussion about who else is attempting this time.'},
-  {kind:'Reminder', text:'It is giving burnout, not discipline, when you havent taken a full day off in three weeks.'},
-  {kind:'Unpopular Opinion', text:'Highlighting the whole page in yellow is not the same as knowing the page. If everything is important, nothing is.'},
-  {kind:'Petty Motivation', text:'Somewhere a friend is telling people you will never clear this. Let their doubt be background noise for one more revision cycle.'},
-  {kind:'Real Talk', text:'You do not need main character energy to get through today. You need forty five focused minutes, then another forty five.'},
-  {kind:'POV', text:'POV: it is 2am, you are "just finishing one more chapter," and tomorrow you pay for it in the topic you actually needed to be sharp for.'},
-  {kind:'Reminder', text:'Delulu is not the solu during exam week. Hope is not a revision strategy. Only the next solved question is.'},
-  {kind:'Plot Twist', text:'The attempt everyone remembers is rarely the one where you felt the most ready. It is the one where you kept showing up anyway.'},
-  {kind:'Real Talk', text:'Switching between five subjects in one evening because none of them feel like "flowing" is how nothing gets finished.'},
-  {kind:'Reminder', text:'A good revision day and a good result are not the same thing, and thats fine. Judge today by whether you showed up.'},
-  {kind:'Petty Motivation', text:'Every "attempt kitna hua" question gets a lot less annoying once you stop dreading the answer.'},
-  {kind:'Real Talk', text:'A revision plan you never open is worth exactly nothing. The messy one you actually follow beats it every time.'},
-  {kind:'POV', text:'POV: you opened the book "for five minutes" three hours ago and somehow that was the most productive part of your day.'},
-  {kind:'Unpopular Opinion', text:'Motivation videos before studying are just a longer way of not studying yet.'},
-  {kind:'Plot Twist', text:'The topic you keep avoiding is usually the one worth ten easy marks once you actually sit with it.'}
-];
-
-const WISDOM_OPENERS = [
-  'Real talk:', 'Quick reminder before you doomscroll again:', 'Unpopular opinion, but:',
-  'Not to be dramatic, but:', 'Gentle reality check:', 'No cap:',
-  'Before you open Instagram again:', 'Small tough-love moment:', 'Just so we are clear:',
-  'One more time for the people in the back:', 'If no one told you today:',
-  'Friendly interruption:', 'Petty but true:', 'Since you are procrastinating anyway, read this:',
-  'Today\u2019s unsolicited advice:'
-];
-
-const WISDOM_CLOSERS = [
-  'That is the whole game, honestly.', 'Small shift, but it adds up by exam day.',
-  'Today counts too, not just exam day.', 'Write that on a sticky note if you have to.',
-  'Say it back to yourself next time you stall.', 'That is not motivation, that is just math.',
-  'Future you is taking notes on how you handle today.', 'Filed under: things to reread at 11pm.',
-  'Not a plot twist, just a Tuesday.', 'You already knew this, just needed the reminder.',
-  'That is it. That is the whole pep talk.', 'Screenshot this if you have to.',
-  'Ok, back to the desk now.', 'One more page. Then another.',
-  'Consider this your daily nudge, not your daily guilt trip.', 'Simple, not easy. Do it anyway.',
-  'That is the discipline talking, not the mood.', 'No one else\u2019s timeline matters except the one on your countdown tab.'
-];
-
-/* deterministic PRNG so "today's" line is stable across reloads on the same day */
-function mulberry32(seed){
-  return function(){
-    seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
-    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
-function hashSeed(str){
-  let h = 2166136261;
-  for(let i=0;i<str.length;i++){ h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
-  return h >>> 0;
-}
-
-function composeWisdom(rand){
-  const base = WISDOM_BASE[Math.floor(rand()*WISDOM_BASE.length)];
-  const roll = rand();
-  let text, affix;
-  if(roll < 0.34){
-    const o = WISDOM_OPENERS[Math.floor(rand()*WISDOM_OPENERS.length)];
-    text = `${o} ${base.text}`;
-    affix = 'o:'+o;
-  } else if(roll < 0.7){
-    const c = WISDOM_CLOSERS[Math.floor(rand()*WISDOM_CLOSERS.length)];
-    text = `${base.text} ${c}`;
-    affix = 'c:'+c;
-  } else {
-    text = base.text;
-    affix = 'plain';
-  }
-  const key = base.text + '||' + affix; // uniqueness is tracked on this combo, not the raw text
-  return { kind: base.kind, text, key };
-}
-
-/* generate a never-before-seen combo, trying a handful of seed offsets if a collision occurs */
-function generateUniqueWisdom(seedStr, usedKeys){
-  for(let attempt=0; attempt<300; attempt++){
-    const rand = mulberry32(hashSeed(seedStr + '#' + attempt));
-    const candidate = composeWisdom(rand);
-    if(!usedKeys.has(candidate.key)) return candidate;
-  }
-  return null; // combinatorial space exhausted (extremely unlikely)
-}
-
-if(!state.wisdomLog) state.wisdomLog = { entries: [] }; // [{date, kind, text, key}]
-const wisdomUsedKeys = new Set(state.wisdomLog.entries.map(e=>e.key));
-
-function ensureTodaysWisdom(){
-  const tKey = todayKey();
-  if(state.wisdomLog.entries.some(e=>e.date===tKey)) return;
-  const candidate = generateUniqueWisdom('daily-'+tKey, wisdomUsedKeys);
-  if(candidate){
-    const entry = { date: tKey, kind: candidate.kind, text: candidate.text, key: candidate.key };
-    state.wisdomLog.entries.push(entry);
-    wisdomUsedKeys.add(candidate.key);
-    saveState();
-  }
-}
-
-function generateExtraWisdom(){
-  const seedStr = 'extra-' + Date.now() + '-' + Math.random();
-  const candidate = generateUniqueWisdom(seedStr, wisdomUsedKeys);
-  if(candidate){
-    const entry = { date: todayKey(), kind: candidate.kind, text: candidate.text, key: candidate.key };
-    state.wisdomLog.entries.push(entry);
-    wisdomUsedKeys.add(candidate.key);
-    saveState();
-  }
-  return candidate;
-}
-
-let wPos = 0, wAuto = true, wTimer = null;
-const wisdomKindEl = document.getElementById('wisdomKind');
-const wisdomTextEl = document.getElementById('wisdomText');
-const wisdomDots = document.getElementById('wisdomDots');
-
-function renderWisdom(){
-  const entries = state.wisdomLog.entries;
-  if(entries.length===0){ wisdomKindEl.textContent=''; wisdomTextEl.textContent='Loading…'; wisdomDots.textContent=''; return; }
-  wPos = Math.max(0, Math.min(wPos, entries.length-1));
-  const e = entries[wPos];
-  wisdomKindEl.textContent = e.kind;
-  wisdomTextEl.textContent = e.text;
-  const isToday = e.date === todayKey();
-  wisdomDots.textContent = `#${wPos+1} of ${entries.length} generated so far` + (isToday ? ' · today' : ` · ${e.date}`);
-}
-function nextWisdom(){
-  const entries = state.wisdomLog.entries;
-  if(wPos < entries.length-1){ wPos++; }
-  else { generateExtraWisdom(); wPos = state.wisdomLog.entries.length-1; }
-  renderWisdom();
-}
-function prevWisdom(){
-  if(wPos>0){ wPos--; renderWisdom(); }
-}
-document.getElementById('wisdomNext').addEventListener('click', ()=>{ nextWisdom(); restartAuto(); });
-document.getElementById('wisdomPrev').addEventListener('click', ()=>{ prevWisdom(); restartAuto(); });
-document.getElementById('wisdomNew').addEventListener('click', ()=>{
-  generateExtraWisdom();
-  wPos = state.wisdomLog.entries.length-1;
-  renderWisdom();
-  restartAuto();
-});
-document.getElementById('wisdomAuto').addEventListener('click', (e)=>{
-  wAuto = !wAuto;
-  e.target.textContent = wAuto ? '⏸ Auto' : '▶ Auto';
-  restartAuto();
-});
-function restartAuto(){
-  clearInterval(wTimer);
-  if(wAuto) wTimer = setInterval(nextWisdom, 13000);
-}
-ensureTodaysWisdom();
-wPos = state.wisdomLog.entries.length-1;
-
-/* =====================================================================
    INIT / MAIN LOOP
 ===================================================================== */
 function init(){
@@ -5243,7 +5036,6 @@ function init(){
   renderSwDisplay();
   renderLaps();
   renderTimerDisplay();
-  renderWisdom();
   renderStreak();
   renderSleep();
   renderHabits();
@@ -5256,7 +5048,6 @@ function init(){
   renderMoodLegend();
   renderMood();
   renderStocks();
-  restartAuto();
 
   setInterval(()=>{
     tickClock();
