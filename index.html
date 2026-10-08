@@ -938,6 +938,77 @@
     right: max(28px, env(safe-area-inset-right));
   }
   .wallet-lightbox{ padding: max(30px, env(safe-area-inset-top)) max(30px, env(safe-area-inset-right)) max(30px, env(safe-area-inset-bottom)) max(30px, env(safe-area-inset-left)); }
+
+  /* ---------- Phone layout (max 860px): compact header, one-row nav, stacked forms ---------- */
+  @media (max-width: 860px){
+    html, body{ height:auto; overflow-x:hidden; overflow-y:auto; }
+    .app-shell{ height:auto; flex-direction:column; }
+    .main-area{ height:auto; overflow:visible; width:100%; }
+    .sidebar{
+      position:sticky; top:0; z-index:60; width:100%; height:auto;
+      display:grid; grid-template-columns:1fr auto; grid-template-areas:"brand actions" "nav nav";
+      gap:8px 10px; align-items:center;
+      padding:max(10px, env(safe-area-inset-top)) 14px 6px;
+      background:rgba(251,249,252,0.97); border-right:none; border-bottom:1px solid var(--line);
+      overflow:visible;
+    }
+    .brand{ grid-area:brand; flex-direction:row; align-items:baseline; gap:8px; padding:0; }
+    .brand .mark{ font-size:17px; }
+    .brand .tag{ display:none; }
+    .icon-actions{ grid-area:actions; margin:0; padding:0; border:none; gap:6px; }
+    .icon-btn{ width:34px; height:34px; }
+    .nav-pills{
+      grid-area:nav; display:flex; flex-direction:row; flex-wrap:nowrap; gap:6px;
+      overflow-x:auto; overflow-y:hidden; padding:2px 0 8px; scrollbar-width:none; -webkit-overflow-scrolling:touch;
+    }
+    .nav-pills::-webkit-scrollbar{ display:none; }
+    .nav-group-toggle{ display:none; }
+    .nav-group-body, .nav-group-body.open{ display:contents; }
+    .pill{ flex:0 0 auto; width:auto; white-space:nowrap; padding:7px 14px; border-radius:20px; font-size:12.5px; text-align:center; }
+    .wrap{ max-width:100%; padding:14px 12px 40px; }
+    .panel{ padding:16px 14px; border-radius:18px; margin-bottom:14px; }
+    .section-title{ font-size:14px; margin-bottom:14px; }
+    .section-title .chip{ font-size:9px; }
+    /* stack inputs and buttons full width instead of squeezing them side by side */
+    .add-exam-form, .streak-today-row, .manual-form, .wallet-custom-range, .wallet-receipt-fields, .target-set{
+      display:flex; flex-direction:column; align-items:stretch; gap:8px;
+    }
+    .add-exam-form > *, .streak-today-row > *, .manual-form > *, .wallet-custom-range > *, .wallet-receipt-fields > *, .target-set > *{
+      width:100% !important; max-width:100% !important; min-width:0 !important; flex:none !important; margin:0;
+    }
+    .manual-form .sep{ display:none; }
+    .custom-time{ flex-wrap:wrap; }
+    .custom-time input{ width:64px !important; }
+    /* segmented pill selectors scroll sideways instead of squeezing */
+    .period-pills, .wallet-type-toggle{ display:flex; width:100%; overflow-x:auto; scrollbar-width:none; }
+    .period-pills::-webkit-scrollbar{ display:none; }
+    .period-btn, .wallet-period-btn, .wtt-btn{ flex:1 0 auto; padding:8px 12px; white-space:nowrap; font-size:12.5px; }
+    /* stat cards: two per row, a leftover odd card spans full width */
+    .streak-cards{ grid-template-columns:repeat(2, minmax(0,1fr)); gap:8px; }
+    .streak-card:last-child:nth-child(odd){ grid-column:1 / -1; }
+    .sc-val{ font-size:17px; }
+    /* bar charts stay readable */
+    .bar-chart{ gap:3px; }
+    .bar-val{ font-size:7px; overflow:hidden; }
+    .bar-day{ font-size:8.5px; }
+    /* list rows wrap instead of pushing sideways */
+    .logbook-entry, .wallet-txn-card, .stock-card, .watch-card, .habit-row, .sc-row{ min-width:0; }
+    .wallet-txn-card{ flex-wrap:wrap; }
+    .wallet-txn-body{ min-width:0; flex:1 1 100%; }
+    .stock-card-top{ flex-wrap:wrap; }
+    .stock-price-row{ gap:8px; }
+    .stock-price-row input[type=date]{ width:100% !important; }
+    .habit-list{ grid-template-columns:1fr !important; }
+    .habit-numeric-row{ flex-direction:column; }
+    .habit-numeric-card{ min-width:0; width:100%; }
+    .allocation-wrap{ flex-direction:column; align-items:center; }
+    .allocation-legend{ width:100%; min-width:0; }
+    .sw-time, .timer-time{ font-size:clamp(30px, 11vw, 46px) !important; }
+    .cover-welcome{ font-size:22px; }
+    .cover-stats{ gap:10px; }
+    .cover-stats .cs-item{ padding:8px 12px; }
+    .scorecard-stars{ font-size:34px; letter-spacing:3px; }
+  }
 </style>
 </head>
 <body>
