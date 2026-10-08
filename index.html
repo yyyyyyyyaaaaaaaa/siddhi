@@ -941,6 +941,18 @@
 </style>
 </head>
 <body>
+<div id="pinLock" style="position:fixed;inset:0;z-index:100000;background:#FBF9FC;display:none;align-items:center;justify-content:center;padding:24px;">
+  <div style="max-width:320px;width:100%;text-align:center;">
+    <div style="font-size:40px;">🌸</div>
+    <h2 id="pinTitle" style="font-size:20px;margin:10px 0 6px;color:#3F3A4A;">Enter your PIN</h2>
+    <p id="pinSub" style="font-size:13px;color:#9C94A8;margin:0 0 18px;">Your records stay on this device.</p>
+    <input id="pinInput" type="password" inputmode="numeric" maxlength="8" autocomplete="off" placeholder="PIN" style="font-size:18px;letter-spacing:6px;text-align:center;width:100%;padding:12px;border:1px solid #E5DFEE;border-radius:14px;background:#fff;">
+    <input id="pinInput2" type="password" inputmode="numeric" maxlength="8" autocomplete="off" placeholder="Repeat PIN" style="display:none;margin-top:10px;font-size:18px;letter-spacing:6px;text-align:center;width:100%;padding:12px;border:1px solid #E5DFEE;border-radius:14px;background:#fff;">
+    <div id="pinError" style="color:#a63333;font-size:12.5px;min-height:18px;margin-top:8px;"></div>
+    <button id="pinBtn" style="margin-top:8px;width:100%;padding:12px;border:none;border-radius:14px;background:#C9B6EC;color:#2c2438;font-weight:800;font-size:15px;cursor:pointer;">Unlock</button>
+  </div>
+</div>
+
 <noscript>
 <div style="position:fixed; inset:0; z-index:99999; background:#FBF9FC; color:#3F3A4A; font-family:-apple-system,sans-serif; padding:40px 24px; text-align:center;">
   <h2>siddhi needs JavaScript</h2>
@@ -1005,6 +1017,7 @@
         </div>
         <div class="settings-actions">
           <button class="btn primary" id="exportBtn">⬇ Download backup</button>
+          <button class="btn ghost" id="pinChangeBtn">🔒 Change PIN</button>
           <label class="btn ghost" for="importFile" style="cursor:pointer;">⬆ Restore backup</label>
           <input type="file" id="importFile" accept="application/json" style="display:none;">
         </div>
@@ -5214,6 +5227,79 @@ document.addEventListener('keydown', (e)=>{
     if(!swLapBtn.disabled) swLapBtn.click();
   }
 });
+</script>
+
+<script>
+/* PIN lock. Stored only on this device (localStorage), never sent anywhere.
+   Deterrent for casual visitors, not strong security: the page code is public. */
+(function(){
+  var KEY = 'siddhi_pin_hash', SESS = 'siddhi_unlocked';
+  var lock = document.getElementById('pinLock');
+  var inp = document.getElementById('pinInput');
+  var inp2 = document.getElementById('pinInput2');
+  var err = document.getElementById('pinError');
+  var btn = document.getElementById('pinBtn');
+  var title = document.getElementById('pinTitle');
+  var sub = document.getElementById('pinSub');
+  var changeBtn = document.getElementById('pinChangeBtn');
+  var lockMode = 'enter';
+
+  function getStored(){ try { return localStorage.getItem(KEY); } catch(e) { return null; } }
+  function setStored(v){ try { localStorage.setItem(KEY, v); } catch(e) {} }
+  function isUnlocked(){ try { return sessionStorage.getItem(SESS) === '1'; } catch(e) { return false; } }
+  function markUnlocked(){ try { sessionStorage.setItem(SESS, '1'); } catch(e) {} }
+
+  async function hashPin(p){
+    var text = 'siddhi:' + p;
+    if (window.crypto && window.crypto.subtle) {
+      var buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+      return Array.prototype.map.call(new Uint8Array(buf), function(x){ return x.toString(16).padStart(2,'0'); }).join('');
+    }
+    var h = 0;
+    for (var i = 0; i < text.length; i++) h = (h * 31 + text.charCodeAt(i)) | 0;
+    return 'fb' + (h >>> 0).toString(16);
+  }
+
+  function showLock(mode){
+    lockMode = mode;
+    lock.style.display = 'flex';
+    err.textContent = ''; inp.value = ''; inp2.value = '';
+    if (mode === 'set') {
+      title.textContent = 'Set a PIN';
+      sub.textContent = 'Choose 4 to 8 digits. You will enter it each time you open siddhi in this browser.';
+      inp2.style.display = 'block';
+      btn.textContent = 'Save PIN';
+    } else {
+      title.textContent = 'Enter your PIN';
+      sub.textContent = 'Your records stay on this device.';
+      inp2.style.display = 'none';
+      btn.textContent = 'Unlock';
+    }
+    setTimeout(function(){ inp.focus(); }, 50);
+  }
+
+  function unlock(){ markUnlocked(); lock.style.display = 'none'; }
+
+  btn.addEventListener('click', async function(){
+    var p = inp.value.trim();
+    if (!/^\d{4,8}$/.test(p)) { err.textContent = 'PIN must be 4 to 8 digits.'; return; }
+    var h = await hashPin(p);
+    if (lockMode === 'set') {
+      if (inp2.value.trim() !== p) { err.textContent = 'The two PINs do not match.'; return; }
+      setStored(h); unlock(); return;
+    }
+    if (h === getStored()) { if (pendingChange) { pendingChange = false; showLock('set'); } else { unlock(); } }
+    else { err.textContent = 'Wrong PIN. Try again.'; inp.value = ''; inp.focus(); }
+  });
+  inp.addEventListener('keydown', function(e){ if (e.key === 'Enter') btn.click(); });
+  inp2.addEventListener('keydown', function(e){ if (e.key === 'Enter') btn.click(); });
+
+  var pendingChange = false;
+  if (changeBtn) changeBtn.addEventListener('click', function(){ pendingChange = true; showLock('enter'); });
+
+  if (getStored() === null) showLock('set');
+  else if (!isUnlocked()) showLock('enter');
+})();
 </script>
 </body>
 </html>
